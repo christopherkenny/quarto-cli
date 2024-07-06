@@ -78,20 +78,18 @@
   context {
     let figcounter = counter(figure.where(kind: kind))
     let n-super = figcounter.get().first() + 1
-    set figure.caption(position: position)
     [#figure(
       kind: kind,
       supplement: supplement,
-      caption: caption,
+      caption: figure.caption(caption, position: position),
       {
+        quartosubfloatcounter.update(1)
         show figure.where(kind: kind): set figure(numbering: _ => numbering(subrefnumbering, n-super, quartosubfloatcounter.get().first() + 1))
-        show figure.where(kind: kind): set figure.caption(position: position)
 
         show figure: it => {
-          let num = numbering(subcapnumbering, n-super, quartosubfloatcounter.get().first() + 1)
+          let num = quartosubfloatcounter.display(subcapnumbering)
           show figure.caption: it => {
-            num.slice(2) // I don't understand why the numbering contains output that it really shouldn't, but this fixes it shrug?
-            [ ]
+            num
             it.body
           }
 
@@ -100,7 +98,6 @@
           counter(figure.where(kind: it.kind)).update(n => n - 1)
         }
 
-        quartosubfloatcounter.update(0)
         body
       }
     )#label]
