@@ -76,26 +76,28 @@
   body,
 ) = {
   context {
-    let figcounter = counter(figure.where(kind: kind))
-    let n-super = figcounter.get().first() + 1
+    let n-super = counter(figure.where(kind: kind)).get().first() + 1
     [#figure(
       kind: kind,
       supplement: supplement,
       caption: figure.caption(caption, position: position),
       {
-        quartosubfloatcounter.update(1)
+        quartosubfloatcounter.update(0)
+        // set the show rule to give `n-super` + (current subfloat) numbering
         show figure.where(kind: kind): set figure(numbering: _ => numbering(subrefnumbering, n-super, quartosubfloatcounter.get().first() + 1))
 
         show figure: it => {
-          let num = quartosubfloatcounter.display(subcapnumbering)
           show figure.caption: it => {
-            num
+            context{
+              quartosubfloatcounter.display(subcapnumbering)
+            }
             it.body
           }
 
           quartosubfloatcounter.step()
-          it
+          // reverse the implicit step, since it's really in the subcounter
           counter(figure.where(kind: it.kind)).update(n => n - 1)
+          it
         }
 
         body
